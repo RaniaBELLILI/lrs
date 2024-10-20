@@ -1,5 +1,6 @@
 <?php 
 include './include/comptes.inc.php';
+include 'connect_db.php';
 
 
 // Si le formulaire est soumis
@@ -8,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $password = $_POST['password'] ?? '';
 
   // Vérifier le login et le mot de passe
-  if (verifierConnexion($login, $password)) {
+  if (verifierConnexion($login, $password,$conn)) {
       session_start();
       $_SESSION['login'] = $login; // Créer une session
       header('Location: page1.php'); // Redirection vers la page privée

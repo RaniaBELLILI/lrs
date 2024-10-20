@@ -1,12 +1,12 @@
 <?php
 include './include/comptes.inc.php';
-
+require_once 'connect_db.php';
 if (isset($_POST['login'], $_POST['password'])) {
     $login = $_POST['login'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);  // Hachage sécurisé du mot de passe
+    $password = $_POST['password'];  // Hachage sécurisé du mot de passe
 
     // Appel à une fonction (ex : creerCompte) pour ajouter le compte s'il est disponible
-    if (creerCompte($login, $password)) {
+    if (creerCompte($login, $password,$_POST['mail'],$conn)) {
         session_start();
         $_SESSION['login'] = $login;  // Enregistre le login dans la session
         header('Location: page1.php'); // Redirection vers la page privée après inscription
