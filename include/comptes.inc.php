@@ -1,9 +1,23 @@
 <?php
 include 'include/debug.inc.php';
 include_once 'connect_db.php';
+include_once 'include/mailer.inc.php';
 // Chemin du fichier CSV contenant les comptes
 $comptes_file = 'comptes.csv';
 
+function send_confirmation($login,$hashed_password,$mail,$conn){
+    $confirmation = bin2hex(random_bytes(16 / 2));
+    $timestamp= time()+3600;
+    $stmt=$conn->prepare("insert into confirmation (nom, password, mail,expire_a,confirmation_code) values (:nom,:password,:mail,FROM_UNIXTIME(:expire_a),:confirmation)");
+    $stmt->execute([
+        'nom' => $login,
+        'password' => $hashed_password,
+        'mail' => $mail,
+        'expire_a' => $timestamp,
+        'confirmation' => $confirmation
+    ]);
+    send_mail("mail de confirmation",'<p>cliquez <a href="http://localhost:8000/confirme.php?code='.$confirmation.'">ici</p>');
+}
 // Charger les comptes à partir du fichier CSV
 function chargerComptes() {
     global $comptes_file;
@@ -49,12 +63,7 @@ function creerCompte($login, $password,$mail,$conn) {
         return false; // Le compte existe déjà
     }
     $hashed_password = password_hash($password,0);
-    $stmt=$conn->prepare("insert into utilisateur (nom, password, mail) values (:nom,:password,:mail)");
-    $stmt->execute([
-        'nom' => $login,
-        'password' => $hashed_password,
-        'mail' => $mail
-    ]);
+    send_confirmation($login,$hashed_password,$mail,$conn);
     return true;
 }
 
